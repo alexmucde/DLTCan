@@ -21,10 +21,11 @@ The following Hardware is currently supported:
 
 ## Wemos Mini D1 Hardware
 
-The following parts are needed to setup a Relais board:
+The following parts are needed to setup a CAN board:
 
 * Wemos D1 Mini [Buy at Amazon Germany](https://amzn.to/3thvzYd) [Buy at AliExpress](https://s.click.aliexpress.com/e/_AXoYOK)
-* Triple Base or Dual Base [Amazon Germany](https://amzn.to/3eyI9Ov) [Buy at AliExpress Triple Base](https://s.click.aliexpress.com/e/_AXI4VC) [Buy at AliExpress Dual Base](https://s.click.aliexpress.com/e/_9In2Z0)
+* Optional: Triple Base or Dual Base [Buy at Amazon Germany](https://amzn.to/3eyI9Ov) [Buy at AliExpress Triple Base](https://s.click.aliexpress.com/e/_AXI4VC) [Buy at AliExpress Dual Base](https://s.click.aliexpress.com/e/_9In2Z0)
+* Optional: Protoype Shield: [Buy at Amazon Germany](https://amzn.to/2Sia1xg) [Buy at AliExpress](https://s.click.aliexpress.com/e/_AcOmnN)
 * MCP2515 Board: [Buy at Amazon Germany](https://amzn.to/3efc7Xs) [Buy at AliExpress](https://s.click.aliexpress.com/e/_AdUTRt)
 
 The following pins from the Wemos D1 Mini to the MCP2515 Board must be connected:
