@@ -73,11 +73,12 @@ If the payload of a message contains the byte "0x7f", two bytes with "0x7f" are 
 The following commands are used
 
 * "0x7f 0x00": Init ok
-* "0x7f 0xff": Init error
 * "0x7f 0x01": Send ok
-* "0x7f 0xfe": Send error
+* "0x7f 0x02": Watchdog
 * "0x7f 0x80 length 2BytesId payload": Standard CAN message
 * "0x7f 0x81 length 4BytesId payload": Extended CAN message
+* "0x7f 0xfe": Send error
+* "0x7f 0xff": Init error
 
 ## Installation
 
@@ -118,6 +119,7 @@ Github Sponsors:
 v0.0.1:
 
 * Initial version
+* Send messages function added
 
 ## Copyright
 

@@ -153,7 +153,6 @@ void DLTCan::readyRead()
            if(startFound)
            {
                // a new message starts
-               watchDogCounter++;
                rawData.clear();
            }
            rawData+=data[num];
@@ -166,6 +165,14 @@ void DLTCan::readyRead()
            // send ok
            qDebug() << "DLTCan: Raw Data " << rawData.toHex();
            qDebug() << "DLTCan: Send ok";
+           rawData.clear();
+       }
+       else if(rawData.size()==1 && (unsigned char)rawData.at(0)==0x02)
+       {
+           // send ok
+           qDebug() << "DLTCan: Raw Data " << rawData.toHex();
+           qDebug() << "DLTCan: Watchdog";
+           watchDogCounter++;
            rawData.clear();
        }
        else if(rawData.size()==1 && (unsigned char)rawData.at(0)==0xfe)
@@ -372,3 +379,23 @@ void DLTCan::readSettings(const QString &filename)
     file.close();
 }
 
+void DLTCan::sendMessage(unsigned short id,unsigned char *data,int length)
+{
+    if(!active)
+    {
+        return;
+    }
+
+    unsigned char msg[256];
+
+    msg[0]=0x7f;
+    msg[1]=0x80;
+    msg[2]=length;
+    msg[3]=(id>>8)&0xff;
+    msg[4]=id&0xff;
+    memcpy((void*)(msg+5),(void*)data,length);
+    serialPort.write((char*)msg,length+5);
+
+    qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,length+5).toHex();
+
+}

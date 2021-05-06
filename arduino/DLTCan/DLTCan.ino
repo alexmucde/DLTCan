@@ -1,30 +1,28 @@
 #include <WCan.h>
 #include <WTimer.h>
+#include <WSerial.h>
 
 WCan can;
-//WTimer timer;
+WTimer timer;
+WSerial serial(WSerial::Binary);
 
 char msgString[128];                        
 
-byte data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
-
 void setup() {
-  Serial.begin(115200);
+  serial.setup();
   
   if(can.setup()==true)
   {
     Serial.write(0x7f); // Start of messages
     Serial.write(0x00); // Init OK
-     ;//Serial.println("Initializing MCP2515 ok");  
   }
   else
   {
     Serial.write(0x7f); // Start of messages
     Serial.write(0xff); // Error Init
-     ;//Serial.println("Error Initializing MCP2515 failed");
   }
   
-  //timer.start(100);
+  timer.start(100);
 }
 
 void loop() 
@@ -52,7 +50,6 @@ void loop()
       }
       else
       {
-        ;//sprintf(msgString, "Standard ID: 0x%.3lX       DLC: %1d  Data:", can.getId(), can.getLength());
         Serial.write(0x7f); // Start of messages
         Serial.write(0x80); // Msg
         Serial.write(can.getLength()); // Msg
@@ -65,15 +62,10 @@ void loop()
             Serial.write(0x7f); 
        }
       }
-      ;//Serial.print(msgString);
     
       if((can.getId() & 0x40000000) == 0x40000000){    // Determine if message is a remote request frame.
-        ;//sprintf(msgString, " REMOTE REQUEST FRAME");
-        ;//Serial.print(msgString);
       } else {
         for(byte i = 0; i<can.getLength(); i++){
-          ;//sprintf(msgString, " 0x%.2X", can.getData()[i]);
-          ;//Serial.print(msgString);
         }
       }
           
@@ -81,22 +73,65 @@ void loop()
       break;
   }
 
-/*  switch(timer.event())
+  switch(serial.event())
+  {
+    case WSerial::Connected:
+      break;
+    case WSerial::Disconnected:
+      break;
+    case WSerial::Line:
+      break;
+    case WSerial::Data:
+      int length;
+      unsigned char *data = serial.getData(length);
+      if(length>=1)
+      {
+        if(data[0]==0x7f)
+        {
+          if(length>=2)
+          {
+            if(data[1]==0x80)
+            {
+              if(length>=3)
+              {
+                int msgLength = data[2];
+                if(length>=(5+msgLength))
+                {
+                  unsigned short id = ((unsigned short)data[3]<<8)|data[4];
+                  if(can.send(id,data+6,msgLength)==true)
+                  { 
+                    Serial.write(0x7f); // Start of messages
+                    Serial.write(0x01); // Send OK
+                  }
+                  else
+                  {
+                    Serial.write(0x7f); // Start of messages
+                    Serial.write(0xfe); // Error Send
+                  }
+                  serial.clearData();                        
+                }
+              }
+            }
+            else
+            {
+              serial.clearData();          
+            }
+          }
+        }
+        else
+        {
+          serial.clearData();          
+        }
+      }
+      break;
+  }
+  
+  switch(timer.event())
   {
     case WTimer::Expired:
-      if(can.send(0x100,data)==true)
-      {
-        Serial.write(0x7f); // Start of messages
-        Serial.write(0x01); // Send OK
-          ;//Serial.println("Send succesful");  
-      }
-      else
-      {
-        Serial.write(0x7f); // Start of messages
-        Serial.write(0xfe); // Error Send
-           ;//Serial.println("Error sending message");
-      }
-      timer.start(100);
+      Serial.write(0x7f); // Start of messages
+      Serial.write(0x02); // Watchdog
+      timer.start(1000);
       break;      
-  }*/
+  }
 }

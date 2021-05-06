@@ -46,6 +46,8 @@ public:
     void on();
     void off();
 
+    void sendMessage(unsigned short id,unsigned char *data,int length);
+
 signals:
 
     void status(QString text);

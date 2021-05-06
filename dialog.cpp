@@ -110,6 +110,8 @@ void Dialog::on_pushButtonStart_clicked()
 
     connect(&dltCan, SIGNAL(message(unsigned int,QByteArray)), this, SLOT(message(unsigned int,QByteArray)));
 
+    msgCounter = 0;
+    ui->lineEditMsgCount->setText(QString("%1").arg(msgCounter));
 }
 
 void Dialog::on_pushButtonStop_clicked()
@@ -311,4 +313,14 @@ void Dialog::on_pushButtonInfo_clicked()
 void  Dialog::message(unsigned int id,QByteArray data)
 {
     dltMiniServer.sendValue3("CAN",QString("%1").arg(id, 8, 16, QLatin1Char( '0' )),data.toHex());
+
+    msgCounter++;
+    ui->lineEditMsgCount->setText(QString("%1").arg(msgCounter));
+}
+
+void Dialog::on_pushButtonSend_clicked()
+{
+    unsigned short id = ui->lineEditMsgId->text().toUShort(nullptr,16);
+    QByteArray data = QByteArray::fromHex(ui->lineEditMsgData->text().toLatin1());
+    dltCan.sendMessage(id,(unsigned char*)data.data(),data.length());
 }

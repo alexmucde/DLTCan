@@ -55,6 +55,8 @@ private slots:
 
     void message(unsigned int id,QByteArray data);
 
+    void on_pushButtonSend_clicked();
+
 private:
     Ui::Dialog *ui;
 
@@ -64,6 +66,8 @@ private:
     // Settings
     void restoreSettings();
     void updateSettings();
+
+    int msgCounter;
 
 };
 #endif // DIALOG_H
