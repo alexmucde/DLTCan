@@ -47,6 +47,12 @@ public:
     void off();
 
     void sendMessage(unsigned short id,unsigned char *data,int length);
+    void startCyclicMessage1(int timeout);
+    void startCyclicMessage2(int timeout);
+    void setCyclicMessage1(unsigned short id,QByteArray data);
+    void setCyclicMessage2(unsigned short id,QByteArray data);
+    void stopCyclicMessage1();
+    void stopCyclicMessage2();
 
 signals:
 
@@ -59,6 +65,9 @@ private slots:
 
     // Watchdog Timeout
     void timeout();
+
+    void timeoutCyclicMessage1();
+    void timeoutCyclicMessage2();
 
 private:
 
@@ -77,6 +86,13 @@ private:
 
     QByteArray rawData;
     bool startFound;
+
+    int cyclicMessageTimeout1,cyclicMessageTimeout2;
+    unsigned short cyclicMessageId1,cyclicMessageId2;
+    QByteArray cyclicMessageData1,cyclicMessageData2;
+
+    QTimer timerCyclicMessage1;
+    QTimer timerCyclicMessage2;
 
 };
 

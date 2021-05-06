@@ -399,3 +399,87 @@ void DLTCan::sendMessage(unsigned short id,unsigned char *data,int length)
     qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,length+5).toHex();
 
 }
+
+void DLTCan::startCyclicMessage1(int timeout)
+{
+    connect(&timerCyclicMessage1, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage1()));
+
+    timerCyclicMessage1.start(timeout);
+}
+
+void DLTCan::startCyclicMessage2(int timeout)
+{
+    connect(&timerCyclicMessage2, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage2()));
+
+    timerCyclicMessage2.start(timeout);
+}
+
+void DLTCan::stopCyclicMessage1()
+{
+    timerCyclicMessage1.stop();
+
+    disconnect(&timerCyclicMessage1, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage1()));
+}
+
+void DLTCan::stopCyclicMessage2()
+{
+    timerCyclicMessage2.stop();
+
+    disconnect(&timerCyclicMessage2, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage2()));
+}
+
+void DLTCan::timeoutCyclicMessage1()
+{
+    if(!active)
+    {
+        return;
+    }
+
+    unsigned char msg[256];
+
+    msg[0]=0x7f;
+    msg[1]=0x80;
+    msg[2]=cyclicMessageData1.length();
+    msg[3]=(cyclicMessageId1>>8)&0xff;
+    msg[4]=cyclicMessageId1&0xff;
+    memcpy((void*)(msg+5),(void*)cyclicMessageData1.constData(),cyclicMessageData1.length());
+    serialPort.write((char*)msg,cyclicMessageData1.length()+5);
+
+    qDebug() << "DLTCan: Send CAN message " << cyclicMessageId1 << cyclicMessageData1.length() << QByteArray((char*)msg,cyclicMessageData1.length()+5).toHex();
+
+    message(cyclicMessageId1,QByteArray((char*)msg,cyclicMessageData1.length()+5));
+}
+
+void DLTCan::timeoutCyclicMessage2()
+{
+    if(!active)
+    {
+        return;
+    }
+
+    unsigned char msg[256];
+
+    msg[0]=0x7f;
+    msg[1]=0x80;
+    msg[2]=cyclicMessageData2.length();
+    msg[3]=(cyclicMessageId2>>8)&0xff;
+    msg[4]=cyclicMessageId2&0xff;
+    memcpy((void*)(msg+5),(void*)cyclicMessageData2.constData(),cyclicMessageData2.length());
+    serialPort.write((char*)msg,cyclicMessageData2.length()+5);
+
+    qDebug() << "DLTCan: Send CAN message " << cyclicMessageId2 << cyclicMessageData2.length() << QByteArray((char*)msg,cyclicMessageData2.length()+5).toHex();
+
+    message(cyclicMessageId2,QByteArray((char*)msg,cyclicMessageData2.length()+5));
+}
+
+void DLTCan::setCyclicMessage1(unsigned short id,QByteArray data)
+{
+    cyclicMessageId1 = id;
+    cyclicMessageData1 = data;
+}
+
+void DLTCan::setCyclicMessage2(unsigned short id,QByteArray data)
+{
+    cyclicMessageId2 = id;
+    cyclicMessageData2 = data;
+}
