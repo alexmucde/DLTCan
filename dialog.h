@@ -57,6 +57,10 @@ private slots:
 
     void on_pushButtonSend_clicked();
 
+    void on_checkBoxActive1_stateChanged(int arg1);
+
+    void on_checkBoxActive2_stateChanged(int arg1);
+
 private:
     Ui::Dialog *ui;
 

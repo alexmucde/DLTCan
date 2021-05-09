@@ -84,11 +84,30 @@ Dialog::~Dialog()
 
 void Dialog::restoreSettings()
 {
-
+    ui->lineEditMsgId->setText(QString("%1").arg(dltCan.getMessageId(),0,16));
+    ui->lineEditMsgData->setText(dltCan.getMessageData().toHex());
+    ui->lineEditTime1->setText(QString("%1").arg(dltCan.getCyclicMessageTimeout1()));
+    ui->lineEditMsgId1->setText(QString("%1").arg(dltCan.getCyclicMessageId1(),0,16));
+    ui->lineEditMsgData1->setText(dltCan.getCyclicMessageData1().toHex());
+    ui->lineEditTime2->setText(QString("%1").arg(dltCan.getCyclicMessageTimeout2()));
+    ui->lineEditMsgId2->setText(QString("%1").arg(dltCan.getCyclicMessageId2(),0,16));
+    ui->lineEditMsgData2->setText(dltCan.getCyclicMessageData2().toHex());
+    ui->checkBoxActive1->setChecked(dltCan.getCyclicMessageActive1());
+    ui->checkBoxActive2->setChecked(dltCan.getCyclicMessageActive2());
 }
 
 void Dialog::updateSettings()
 {
+    dltCan.setMessageId(ui->lineEditMsgId->text().toUShort(nullptr,16));
+    dltCan.setMessageData(QByteArray::fromHex(ui->lineEditMsgData->text().toLatin1()));
+    dltCan.setCyclicMessageActive1(ui->checkBoxActive1->isChecked());
+    dltCan.setCyclicMessageTimeout1(ui->lineEditTime1->text().toInt());
+    dltCan.setCyclicMessageId1(ui->lineEditMsgId1->text().toUShort(nullptr,16));
+    dltCan.setCyclicMessageData1(QByteArray::fromHex(ui->lineEditMsgData1->text().toLatin1()));
+    dltCan.setCyclicMessageActive2(ui->checkBoxActive2->isChecked());
+    dltCan.setCyclicMessageTimeout2(ui->lineEditTime2->text().toInt());
+    dltCan.setCyclicMessageId2(ui->lineEditMsgId2->text().toUShort(nullptr,16));
+    dltCan.setCyclicMessageData2(QByteArray::fromHex(ui->lineEditMsgData2->text().toLatin1()));
 }
 
 void Dialog::on_pushButtonStart_clicked()
@@ -323,4 +342,31 @@ void Dialog::on_pushButtonSend_clicked()
     unsigned short id = ui->lineEditMsgId->text().toUShort(nullptr,16);
     QByteArray data = QByteArray::fromHex(ui->lineEditMsgData->text().toLatin1());
     dltCan.sendMessage(id,(unsigned char*)data.data(),data.length());
+}
+
+void Dialog::on_checkBoxActive1_stateChanged(int arg1)
+{
+    if(arg1)
+    {
+        dltCan.setCyclicMessage1(ui->lineEditMsgId1->text().toUShort(nullptr,16),QByteArray::fromHex(ui->lineEditMsgData1->text().toLatin1()));
+        dltCan.startCyclicMessage1(ui->lineEditTime1->text().toInt());
+    }
+    else
+    {
+        dltCan.stopCyclicMessage1();
+    }
+}
+
+void Dialog::on_checkBoxActive2_stateChanged(int arg1)
+{
+    if(arg1)
+    {
+        dltCan.setCyclicMessage2(ui->lineEditMsgId2->text().toUShort(nullptr,16),QByteArray::fromHex(ui->lineEditMsgData2->text().toLatin1()));
+        dltCan.startCyclicMessage2(ui->lineEditTime2->text().toInt());
+    }
+    else
+    {
+        dltCan.stopCyclicMessage2();
+    }
+
 }

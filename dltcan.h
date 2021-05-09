@@ -54,6 +54,36 @@ public:
     void stopCyclicMessage1();
     void stopCyclicMessage2();
 
+    unsigned short getMessageId() const;
+    void setMessageId(unsigned short value);
+
+    unsigned short getCyclicMessageId1() const;
+    void setCyclicMessageId1(unsigned short value);
+
+    unsigned short getCyclicMessageId2() const;
+    void setCyclicMessageId2(unsigned short value);
+
+    QByteArray getMessageData() const;
+    void setMessageData(const QByteArray &value);
+
+    QByteArray getCyclicMessageData1() const;
+    void setCyclicMessageData1(const QByteArray &value);
+
+    QByteArray getCyclicMessageData2() const;
+    void setCyclicMessageData2(const QByteArray &value);
+
+    int getCyclicMessageTimeout1() const;
+    void setCyclicMessageTimeout1(int value);
+
+    int getCyclicMessageTimeout2() const;
+    void setCyclicMessageTimeout2(int value);
+
+    bool getCyclicMessageActive1() const;
+    void setCyclicMessageActive1(bool value);
+
+    bool getCyclicMessageActive2() const;
+    void setCyclicMessageActive2(bool value);
+
 signals:
 
     void status(QString text);
@@ -87,9 +117,10 @@ private:
     QByteArray rawData;
     bool startFound;
 
+    bool cyclicMessageActive1,cyclicMessageActive2;
     int cyclicMessageTimeout1,cyclicMessageTimeout2;
-    unsigned short cyclicMessageId1,cyclicMessageId2;
-    QByteArray cyclicMessageData1,cyclicMessageData2;
+    unsigned short messageId,cyclicMessageId1,cyclicMessageId2;
+    QByteArray messageData,cyclicMessageData1,cyclicMessageData2;
 
     QTimer timerCyclicMessage1;
     QTimer timerCyclicMessage2;

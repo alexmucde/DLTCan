@@ -35,7 +35,7 @@ The following pins from the Wemos D1 Mini to the MCP2515 Board must be connected
 * D6 -> MISO SO
 * D7 -> MOSI SI
 * D8 -> CS
-* D4 -> INT
+* D2 -> INT
 
 ## Wemos Mini D1 Arduino SW
 

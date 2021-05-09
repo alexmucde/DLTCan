@@ -302,6 +302,16 @@ void DLTCan::writeSettings(QXmlStreamWriter &xml)
         xml.writeTextElement("interfaceProductIdentifier",QString("%1").arg(QSerialPortInfo(interface).productIdentifier()));
         xml.writeTextElement("interfaceVendorIdentifier",QString("%1").arg(QSerialPortInfo(interface).vendorIdentifier()));
         xml.writeTextElement("active",QString("%1").arg(active));
+        xml.writeTextElement("messageId",QString("%1").arg(messageId));
+        xml.writeTextElement("messageData",messageData.toHex());
+        xml.writeTextElement("cyclicMessageActive1",QString("%1").arg(cyclicMessageActive1));
+        xml.writeTextElement("cyclicMessageTimeout1",QString("%1").arg(cyclicMessageTimeout1));
+        xml.writeTextElement("cyclicMessageId1",QString("%1").arg(cyclicMessageId1));
+        xml.writeTextElement("cyclicMessageData1",cyclicMessageData1.toHex());
+        xml.writeTextElement("cyclicMessageActive2",QString("%1").arg(cyclicMessageActive2));
+        xml.writeTextElement("cyclicMessageTimeout2",QString("%1").arg(cyclicMessageTimeout2));
+        xml.writeTextElement("cyclicMessageId2",QString("%1").arg(cyclicMessageId2));
+        xml.writeTextElement("cyclicMessageData2",cyclicMessageData2.toHex());
     xml.writeEndElement(); // DLTCan
 }
 
@@ -356,6 +366,46 @@ void DLTCan::readSettings(const QString &filename)
                   {
                       active = xml.readElementText().toInt();
                   }
+                  else if(xml.name() == QString("messageId"))
+                  {
+                      messageId = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("messageData"))
+                  {
+                      messageData = QByteArray::fromHex(xml.readElementText().toLatin1());
+                  }
+                  else if(xml.name() == QString("cyclicMessageActive1"))
+                  {
+                      cyclicMessageActive1 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageTimeout1"))
+                  {
+                      cyclicMessageTimeout1 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageId1"))
+                  {
+                      cyclicMessageId1 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageData1"))
+                  {
+                      cyclicMessageData1 = QByteArray::fromHex(xml.readElementText().toLatin1());
+                  }
+                  else if(xml.name() == QString("cyclicMessageActive2"))
+                  {
+                      cyclicMessageActive2 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageTimeout2"))
+                  {
+                      cyclicMessageTimeout2 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageId2"))
+                  {
+                      cyclicMessageId2 = xml.readElementText().toInt();
+                  }
+                  else if(xml.name() == QString("cyclicMessageData2"))
+                  {
+                      cyclicMessageData2 = QByteArray::fromHex(xml.readElementText().toLatin1());
+                  }
               }
               else if(xml.name() == QString("DLTCan"))
               {
@@ -396,13 +446,21 @@ void DLTCan::sendMessage(unsigned short id,unsigned char *data,int length)
     memcpy((void*)(msg+5),(void*)data,length);
     serialPort.write((char*)msg,length+5);
 
+    messageId = id;
+    messageData = QByteArray((char*)data,length);
+
     qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,length+5).toHex();
+
+    message(id,QByteArray((char*)data,length));
 
 }
 
 void DLTCan::startCyclicMessage1(int timeout)
 {
     connect(&timerCyclicMessage1, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage1()));
+
+    cyclicMessageTimeout1 = timeout;
+    cyclicMessageActive1 = true;
 
     timerCyclicMessage1.start(timeout);
 }
@@ -411,12 +469,16 @@ void DLTCan::startCyclicMessage2(int timeout)
 {
     connect(&timerCyclicMessage2, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage2()));
 
+    cyclicMessageTimeout2 = timeout;
+    cyclicMessageActive2 = true;
+
     timerCyclicMessage2.start(timeout);
 }
 
 void DLTCan::stopCyclicMessage1()
 {
     timerCyclicMessage1.stop();
+    cyclicMessageActive1 = false;
 
     disconnect(&timerCyclicMessage1, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage1()));
 }
@@ -424,6 +486,7 @@ void DLTCan::stopCyclicMessage1()
 void DLTCan::stopCyclicMessage2()
 {
     timerCyclicMessage2.stop();
+    cyclicMessageActive2 = false;
 
     disconnect(&timerCyclicMessage2, SIGNAL(timeout()), this, SLOT(timeoutCyclicMessage2()));
 }
@@ -447,7 +510,7 @@ void DLTCan::timeoutCyclicMessage1()
 
     qDebug() << "DLTCan: Send CAN message " << cyclicMessageId1 << cyclicMessageData1.length() << QByteArray((char*)msg,cyclicMessageData1.length()+5).toHex();
 
-    message(cyclicMessageId1,QByteArray((char*)msg,cyclicMessageData1.length()+5));
+    message(cyclicMessageId1,QByteArray((char*)cyclicMessageData1.constData(),cyclicMessageData1.length()));
 }
 
 void DLTCan::timeoutCyclicMessage2()
@@ -469,7 +532,107 @@ void DLTCan::timeoutCyclicMessage2()
 
     qDebug() << "DLTCan: Send CAN message " << cyclicMessageId2 << cyclicMessageData2.length() << QByteArray((char*)msg,cyclicMessageData2.length()+5).toHex();
 
-    message(cyclicMessageId2,QByteArray((char*)msg,cyclicMessageData2.length()+5));
+    message(cyclicMessageId2,QByteArray((char*)cyclicMessageData2.constData(),cyclicMessageData2.length()));
+}
+
+bool DLTCan::getCyclicMessageActive2() const
+{
+    return cyclicMessageActive2;
+}
+
+void DLTCan::setCyclicMessageActive2(bool value)
+{
+    cyclicMessageActive2 = value;
+}
+
+bool DLTCan::getCyclicMessageActive1() const
+{
+    return cyclicMessageActive1;
+}
+
+void DLTCan::setCyclicMessageActive1(bool value)
+{
+    cyclicMessageActive1 = value;
+}
+
+int DLTCan::getCyclicMessageTimeout2() const
+{
+    return cyclicMessageTimeout2;
+}
+
+void DLTCan::setCyclicMessageTimeout2(int value)
+{
+    cyclicMessageTimeout2 = value;
+}
+
+int DLTCan::getCyclicMessageTimeout1() const
+{
+    return cyclicMessageTimeout1;
+}
+
+void DLTCan::setCyclicMessageTimeout1(int value)
+{
+    cyclicMessageTimeout1 = value;
+}
+
+QByteArray DLTCan::getCyclicMessageData2() const
+{
+    return cyclicMessageData2;
+}
+
+void DLTCan::setCyclicMessageData2(const QByteArray &value)
+{
+    cyclicMessageData2 = value;
+}
+
+QByteArray DLTCan::getCyclicMessageData1() const
+{
+    return cyclicMessageData1;
+}
+
+void DLTCan::setCyclicMessageData1(const QByteArray &value)
+{
+    cyclicMessageData1 = value;
+}
+
+QByteArray DLTCan::getMessageData() const
+{
+    return messageData;
+}
+
+void DLTCan::setMessageData(const QByteArray &value)
+{
+    messageData = value;
+}
+
+unsigned short DLTCan::getCyclicMessageId2() const
+{
+    return cyclicMessageId2;
+}
+
+void DLTCan::setCyclicMessageId2(unsigned short value)
+{
+    cyclicMessageId2 = value;
+}
+
+unsigned short DLTCan::getCyclicMessageId1() const
+{
+    return cyclicMessageId1;
+}
+
+void DLTCan::setCyclicMessageId1(unsigned short value)
+{
+    cyclicMessageId1 = value;
+}
+
+unsigned short DLTCan::getMessageId() const
+{
+    return messageId;
+}
+
+void DLTCan::setMessageId(unsigned short value)
+{
+    messageId = value;
 }
 
 void DLTCan::setCyclicMessage1(unsigned short id,QByteArray data)

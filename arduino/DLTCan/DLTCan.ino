@@ -98,7 +98,7 @@ void loop()
                 if(length>=(5+msgLength))
                 {
                   unsigned short id = ((unsigned short)data[3]<<8)|data[4];
-                  if(can.send(id,data+6,msgLength)==true)
+                  if(can.send(id,data+5,msgLength)==true)
                   { 
                     Serial.write(0x7f); // Start of messages
                     Serial.write(0x01); // Send OK
