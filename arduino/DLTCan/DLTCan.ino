@@ -6,7 +6,8 @@ WCan can;
 WTimer timer;
 WSerial serial(WSerial::Binary);
 
-char msgString[128];                        
+char msgString[256];
+unsigned char canMessage[256];                        
 
 void setup() {
   serial.setup();
@@ -45,7 +46,7 @@ void loop()
         {
             Serial.write(can.getData()[num]); // Msg          
             if(can.getData()[num]==0x7f)
-              Serial.write(0x7f); 
+              Serial.write(0x7f); // add stuff byte to be able to detect unique header
         }
       }
       else
@@ -59,7 +60,7 @@ void loop()
         {
           Serial.write(can.getData()[num]); // Msg          
           if(can.getData()[num]==0x7f)
-            Serial.write(0x7f); 
+            Serial.write(0x7f); // add stuff byte to be able to detect unique header 
        }
       }
     
@@ -98,7 +99,32 @@ void loop()
                 if(length>=(5+msgLength))
                 {
                   unsigned short id = ((unsigned short)data[3]<<8)|data[4];
-                  if(can.send(id,data+5,msgLength)==true)
+                  int pos=0;
+                  bool stuffFound=false;
+                  for(int num=5;num<length;num++)
+                  {
+ /*                   if(data[num]==0x7f)
+                    {
+                      if(stuffFound)
+                      {
+                        stuffFound=false;
+                        canMessage[pos++]=data[num];                      
+                      }
+                      else
+                      {
+                        stuffFound=true;
+                      }
+                    }
+                    else*/
+                    {
+                      canMessage[pos++]=data[num];
+                    }
+                    if(pos>=msgLength)
+                      break; // full message found
+                  }
+                  if(pos<msgLength)
+                    break; // no full message yet found
+                  if(can.send(id,canMessage,msgLength)==true)
                   { 
                     Serial.write(0x7f); // Start of messages
                     Serial.write(0x01); // Send OK

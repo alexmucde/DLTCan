@@ -164,14 +164,14 @@ void Dialog::statusCan(QString text)
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
     }
-    else if(text == "started")
+    else if(text == "started" || text == "send ok" || text == "init ok")
     {
         QPalette palette;
         palette.setColor(QPalette::Base,Qt::green);
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
     }
-    else if(text == "reconnect")
+    else if(text == "reconnect" || text=="send error" || text == "init error")
     {
         QPalette palette;
         palette.setColor(QPalette::Base,Qt::yellow);

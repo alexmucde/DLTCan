@@ -60,7 +60,7 @@ void DLTCan::start()
 {
     if(!active)
     {
-        status(QString("not active"));
+        status("not active");
         return;
     }
 
@@ -82,7 +82,7 @@ void DLTCan::start()
         // connect slot to receive data from serial port
         connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
-        status(QString("started"));
+        status("started");
         qDebug() << "DLTCan: started" << interface;
      }
     else
@@ -90,7 +90,7 @@ void DLTCan::start()
         // open failed
 
         qDebug() << "DLTCan: Failed to open interface" << interface;
-        status(QString("error"));
+        status("error");
     }
 
     serialData.clear();
@@ -111,7 +111,7 @@ void DLTCan::stop()
     }
 
     // stop communication
-    status(QString("stopped"));
+    status("stopped");
     qDebug() << "DLTCan: stopped" << interface;
 
     // close serial port, if it is open
@@ -165,6 +165,7 @@ void DLTCan::readyRead()
            // send ok
            qDebug() << "DLTCan: Raw Data " << rawData.toHex();
            qDebug() << "DLTCan: Send ok";
+           status("send ok");
            rawData.clear();
        }
        else if(rawData.size()==1 && (unsigned char)rawData.at(0)==0x02)
@@ -180,6 +181,7 @@ void DLTCan::readyRead()
            // error send
            qDebug() << "DLTCan: Raw Data " << rawData.toHex();
            qDebug() << "DLTCan: Send error";
+           status("send error");
            rawData.clear();
        }
        else if(rawData.size()==1 && (unsigned char)rawData.at(0)==0x00)
@@ -187,6 +189,7 @@ void DLTCan::readyRead()
            // init ok
            qDebug() << "DLTCan: Raw Data " << rawData.toHex();
            qDebug() << "DLTCan: Init ok";
+           status("init ok");
            rawData.clear();
        }
        else if(rawData.size()==1 && (unsigned char)rawData.at(0)==0xff)
@@ -194,6 +197,7 @@ void DLTCan::readyRead()
            // init error
            qDebug() << "DLTCan: Raw Data " << rawData.toHex();
            qDebug() << "DLTCan: Init Error";
+           status("init error");
            rawData.clear();
        }
        else if(rawData.size()>=1 && (unsigned char)rawData.at(0)==0x80)
@@ -243,7 +247,7 @@ void DLTCan::timeout()
     if(watchDogCounter!=watchDogCounterLast)
     {
         watchDogCounterLast = watchDogCounter;
-        status(QString("started"));
+        status("started");
     }
     else
     {
@@ -270,7 +274,7 @@ void DLTCan::timeout()
             // connect slot to receive data from serial port
             connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
-            status(QString("reconnect"));
+            status("reconnect");
             qDebug() << "DLTCan: reconnect" << interface;
         }
         else
@@ -278,7 +282,7 @@ void DLTCan::timeout()
             // retry failed
 
             qDebug() << "DLTCan: Failed to open interface" << interface;
-            status(QString("error"));
+            status("error");
         }
     }
 
@@ -443,13 +447,20 @@ void DLTCan::sendMessage(unsigned short id,unsigned char *data,int length)
     msg[2]=length;
     msg[3]=(id>>8)&0xff;
     msg[4]=id&0xff;
-    memcpy((void*)(msg+5),(void*)data,length);
-    serialPort.write((char*)msg,length+5);
+    int pos = 5;
+    for(int num=0;num<length;num++)
+    {
+        msg[pos++]=data[num];
+        //if(data[num]==0x7f)
+        //    msg[pos++]=0x7f; // add stuff byte to be able to detect unique header
+    }
+    //memcpy((void*)(msg+5),(void*)data,length);
+    serialPort.write((char*)msg,pos);
 
     messageId = id;
     messageData = QByteArray((char*)data,length);
 
-    qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,length+5).toHex();
+    qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,pos).toHex();
 
     message(id,QByteArray((char*)data,length));
 
