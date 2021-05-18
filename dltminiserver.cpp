@@ -63,6 +63,8 @@ void DLTMiniServer::stop()
     disconnect(&tcpServer, SIGNAL(newConnection()), this, SLOT(newConnection()));
     tcpServer.close();
 
+    readData.clear();
+
     status("stopped");
     qDebug() << "DLTMiniServer: stopped" << port;
 }
@@ -142,7 +144,74 @@ void DLTMiniServer::readSettings(const QString &filename)
 
 void DLTMiniServer::readyRead()
 {
+    while(tcpSocket && tcpSocket->bytesAvailable())
+    {
+        readData += tcpSocket->readAll();
 
+        // check if complete DLT message is received
+        if(readData.size()>=4)
+        {
+            // calculate size
+            unsigned short length = (unsigned short)(readData[3]) | ((unsigned short)(readData[2]) << 8);
+            if(readData.size()>=length)
+            {
+                qDebug() << "DLTMiniServer: msg received with length" << length;
+
+                unsigned char htyp = (unsigned char)(readData[0]);
+
+                unsigned short standardHeaderLength = 4;
+                if(htyp&0x04) standardHeaderLength+=4; // with ecu id
+                if(htyp&0x08) standardHeaderLength+=4; // with session id
+                if(htyp&0x10) standardHeaderLength+=4; // with timestamp
+
+                //qDebug() << "DLTMiniServer: header length" << standardHeaderLength;
+
+                if(htyp&0x01) // use of extended header
+                {
+                    unsigned char msin = (unsigned char)(readData[standardHeaderLength]);
+                    unsigned char mstp = (msin >> 1) & 0x07;
+                    unsigned char mtin = (msin >> 4) & 0x0f;
+
+                    //qDebug() << "DLTMiniServer: mstp" << mstp << "mtin" << mtin;
+
+                    if(mstp==0x3 && mtin == 0x01 && readData.size()>=standardHeaderLength+10+4) // Control request message
+                    {
+                        unsigned int serviceId = (unsigned int)(readData[standardHeaderLength+10]) |
+                                                 (unsigned int)(readData[standardHeaderLength+11]) << 8 |
+                                                (unsigned int)(readData[standardHeaderLength+12]) << 16 |
+                                                (unsigned int)(readData[standardHeaderLength+13]) << 24;
+
+                        //qDebug() << "DLTMiniServer: serviceId" << serviceId;
+
+                        if(serviceId==4096 && readData.size()>=standardHeaderLength+10+4+4)
+                        {
+                            unsigned int lengthData = (unsigned int)(readData[standardHeaderLength+14]) |
+                                                        (unsigned int)(readData[standardHeaderLength+15]) << 8 |
+                                                        (unsigned int)(readData[standardHeaderLength+15]) << 16 |
+                                                        (unsigned int)(readData[standardHeaderLength+15]) << 24;
+
+                            //qDebug() << "DLTMiniServer: lengthData" << lengthData;
+
+                            if(readData.size()>=standardHeaderLength+18+lengthData)
+                            {
+                                QByteArray injectionData = readData.mid(standardHeaderLength+18,lengthData);
+                                QString injectionStr = QString::fromLatin1(injectionData);
+
+                                qDebug() << "DLTMiniServer: injection" << injectionStr;
+
+                                injection(injectionStr);
+                            }
+                        }
+
+                    }
+                }
+
+
+                readData.remove(0,length);
+            }
+        }
+
+    }
 }
 
 void DLTMiniServer::newConnection()
@@ -150,7 +219,10 @@ void DLTMiniServer::newConnection()
     tcpSocket = tcpServer.nextPendingConnection();
     connect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
     connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     tcpServer.pauseAccepting();
+
+    readData.clear();
 
     status("connected");
 }
@@ -165,9 +237,12 @@ void DLTMiniServer::disconnected()
     tcpSocket->close();
     disconnect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
     disconnect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    disconnect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     //delete tcpSocket;
     tcpSocket = 0;
     tcpServer.resumeAccepting();
+
+    readData.clear();
 
     status("listening");
 }

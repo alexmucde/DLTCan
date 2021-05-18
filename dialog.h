@@ -42,6 +42,8 @@ private slots:
     void statusCan(QString text);
     void statusDlt(QString text);
 
+    void injection(QString text);
+
     // Settings and Info
     void on_pushButtonSettings_clicked();
     void on_pushButtonDefaultSettings_clicked();

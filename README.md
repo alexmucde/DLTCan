@@ -55,7 +55,7 @@ The Arduino SW provides the following Features:
 
 * Init status
 * Forward Standard and Extended CAN message
-* Send specific message cyclical (optional)
+* Send two specific messages cyclical (optional)
 
 ### Protocol
 
@@ -79,6 +79,14 @@ The following commands are used
 * "0x7f 0x81 length 4BytesId payload": Extended CAN message
 * "0x7f 0xfe": Send error
 * "0x7f 0xff": Init error
+
+## DLT Injection commands
+
+* CAN <hex id> <hex message>
+* CANCYC1 <decimal time ms> <hex id> <hex message>
+* CANCYC1 off
+* CANCYC2 <decimal time ms> <hex id> <hex message>
+* CANCYC2 off
 
 ## Installation
 
@@ -115,6 +123,10 @@ Github Sponsors:
 [:heart: Sponsor](https://github.com/sponsors/alexmucde)
 
 ## Changes
+
+v0.0.2:
+
+* Add DLT injection interface
 
 v0.0.1:
 

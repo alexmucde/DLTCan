@@ -51,6 +51,7 @@ public:
 signals:
 
     void status(QString text);
+    void injection(QString text);
 
 private slots:
 
@@ -67,6 +68,8 @@ private:
     unsigned short port;
     QString applicationId;
     QString contextId;
+
+    QByteArray readData;
 
 };
 

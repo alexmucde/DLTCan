@@ -43,6 +43,8 @@ Dialog::Dialog(bool autostart,QString configuration,QWidget *parent)
     connect(&dltCan, SIGNAL(status(QString)), this, SLOT(statusCan(QString)));
     connect(&dltMiniServer, SIGNAL(status(QString)), this, SLOT(statusDlt(QString)));
 
+    connect(&dltMiniServer, SIGNAL(injection(QString)), this, SLOT(injection(QString)));
+
     //  load global settings from registry
     QSettings settings;
     QString filename = settings.value("autoload/filename").toString();
@@ -78,6 +80,8 @@ Dialog::~Dialog()
     // disconnect all slots
     disconnect(&dltCan, SIGNAL(status(QString)), this, SLOT(statusCan(QString)));
     disconnect(&dltMiniServer, SIGNAL(status(QString)), this, SLOT(statusDlt(QString)));
+
+    disconnect(&dltMiniServer, SIGNAL(injection(QString)), this, SLOT(injection(QString)));
 
     delete ui;
 }
@@ -352,8 +356,8 @@ void Dialog::on_checkBoxActive1_stateChanged(int arg1)
         dltCan.startCyclicMessage1(ui->lineEditTime1->text().toInt());
     }
     else
-    {
-        dltCan.stopCyclicMessage1();
+    {dltCan.stopCyclicMessage1();
+
     }
 }
 
@@ -367,6 +371,59 @@ void Dialog::on_checkBoxActive2_stateChanged(int arg1)
     else
     {
         dltCan.stopCyclicMessage2();
+    }
+
+}
+
+void Dialog::injection(QString text)
+{
+    QStringList list = text.split(' ');
+
+    qDebug() << "Injection received: " << text;
+
+    if(list[0] == "CAN")
+    {
+        unsigned short id = list[1].toUShort(nullptr,16);
+        QByteArray data = QByteArray::fromHex(list[2].toLatin1());
+        dltCan.sendMessage(id,(unsigned char*)data.data(),data.length());
+    }
+    else if(list[0] == "CANCYC1")
+    {
+        if(list[1]=="off")
+        {
+            ui->checkBoxActive1->setChecked(false);
+            on_checkBoxActive1_stateChanged(false);
+        }
+        else
+        {
+            unsigned short time = list[1].toUShort();
+            unsigned short id = list[2].toUShort(nullptr,16);
+            QByteArray data = QByteArray::fromHex(list[3].toLatin1());
+
+            dltCan.setCyclicMessage1(id,data);
+            dltCan.startCyclicMessage1(time);
+
+            restoreSettings();
+        }
+    }
+    else if(list[0] == "CANCYC2")
+    {
+        if(list[1]=="off")
+        {
+            ui->checkBoxActive2->setChecked(false);
+            on_checkBoxActive2_stateChanged(false);
+        }
+        else
+        {
+            unsigned short time = list[1].toUShort();
+            unsigned short id = list[2].toUShort(nullptr,16);
+            QByteArray data = QByteArray::fromHex(list[3].toLatin1());
+
+            dltCan.setCyclicMessage2(id,data);
+            dltCan.startCyclicMessage2(time);
+
+            restoreSettings();
+        }
     }
 
 }
