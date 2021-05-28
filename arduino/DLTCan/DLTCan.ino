@@ -1,8 +1,50 @@
+/*
+
+Wemos D1 mini -> Custom CAN Bus Shield:
+
+3V3 -> VCC
+D5 -> SCK
+D6 -> MISO
+D7 -> MOSI
+D8 -> CS
+GND -> GND
+D2 -> INT
+
+Keyestudio CAN Bus Shield -> Wemos D1 R1:
+
+13 SCK
+12 MISO
+11 MOSI
+10 CS
+
+8 INT -> D8
+
++5V -> 3.3V
+GND -> GND
+RST -> RST
+
+Diymore CAN Bus Shield -> Wemos D1 R1:
+
+13 SCK
+12 MISO
+11 MOSI
+10 CS
+
+2 INT -> D2
+
++5V -> 3.3V
+GND -> GND
+RST -> RST
+
+*/
+
 #include <WCan.h>
 #include <WTimer.h>
 #include <WSerial.h>
 
-WCan can;
+WCan can(CAN_500KBPS,MCP_8MHZ,D8,D2); // Wemos D1 mini + Custom CAN Bus Shield
+//WCan can(CAN_500KBPS,MCP_16MHZ,D10,D8); // Wemos D1 R1 + Keyestudio CAN Bus Shield
+//WCan can(CAN_500KBPS,MCP_16MHZ,D10,D2); // Wemos D1 R1 + Diymore CAN Bus Shield
 WTimer timer;
 WSerial serial(WSerial::Binary);
 
