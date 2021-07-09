@@ -9,8 +9,6 @@ It is developed for an Arduino SW running on a Wemos Mini D1 HW and an MCP2515 A
 ![Image of Wemos Relais Board](https://github.com/alexmucde/DLTCan/blob/main/doc/images/WemosCanBoard2.jpg)
 ![Image of Wemos Relais Board](https://github.com/alexmucde/DLTCan/blob/main/doc/images/WemosCanBoard3.jpg)
 
-![Image of Wemos D1 Keyestudio](https://github.com/alexmucde/DLTCan/blob/main/doc/images/WemosD1Keyestudio.jpg)
-
 For further information about DLT visit the DLT Viewer project:
 
 https://github.com/GENIVI/dlt-viewer
@@ -20,8 +18,8 @@ https://github.com/GENIVI/dlt-viewer
 The following Hardware is currently supported:
 
 * Relais Boards: Arduino Wemos Mini D1 + MCP2515 Board
-* Wemos D1 R1 Board + Keyestudio CAN-BUS Shield (experimental)
-* Wemos D1 R1 Board + DiyMore CAN-BUS Shield (not working yet)
+* Wemos D1 R1 Board + Keyestudio CAN-BUS Shield
+* Wemos D1 R1 Board + DiyMore CAN-BUS Shield
 
 ## Wemos Mini D1 Board + MCP2515 Board
 
@@ -32,8 +30,12 @@ The following parts are needed to setup a CAN board:
 * Optional: Protoype Shield: [Buy at Amazon Germany](https://amzn.to/2Sia1xg) [Buy at AliExpress](https://s.click.aliexpress.com/e/_AcOmnN)
 * MCP2515 Board: [Buy at Amazon Germany](https://amzn.to/3efc7Xs) [Buy at AliExpress](https://s.click.aliexpress.com/e/_AdUTRt)
 
+CAUTION: Wemos D1 Mini needs 3.3V logic level, if not ESP8266 will be damaged.
+Pin 18 of MCP2515 must be unsoldered and connected to 3.3V
+
 The following pins from the Wemos D1 Mini to the MCP2515 Board must be connected:
-* 3V3 -> VCC
+* 3.3V -> Pin18 MCP2515
+* 5V -> VCC
 * GND -> GND
 * D5 -> SCK
 * D6 -> MISO SO
@@ -48,8 +50,8 @@ The following parts are needed to setup a CAN board:
 * Wemos D1 [Amazon Germany](https://amzn.to/3fdFrOu) [AliExpress](https://s.click.aliexpress.com/e/_AMlgFl)
 * Keyestudio CAN_BUS Shield [Eckstein Shop](https://eckstein-shop.de/Keyestudio-CAN-BUS-Shield-MCP2551-chip-With-SD-Socket-For-Arduino-UNO-R3) [AliExpress](https://s.click.aliexpress.com/e/_9ixgBl)
 
-The Wemos D1 uses 3.3V as logic power, but the CAN-BUS Shield is powered by 5V, which could damage the input pins of the ESP8266.
-The Pin +5V of the CAN-BUS Shield must be removed and the 3.3V and 5V pins must be shortcut in the shield.
+CAUTION: Wemos D1 R1 needs 3.3V logic level, if not ESP8266 will be damaged.
+Pin 18 of MCP2515 must be unsoldered and connected to 3.3V
 
 The following pins from the Wemos D1 R1 are connected to the CAN Bus shield:
 
@@ -58,7 +60,8 @@ The following pins from the Wemos D1 R1 are connected to the CAN Bus shield:
 * 11 -> D7 MOSI
 * 10 -> D10 CS
 * 8 INT -> D8
-* +5V -> 3.3V
+* 3.3V -> Pin18 MCP2515
+* 5V -> 5V
 * GND -> GND
 * RST -> RST
 
@@ -69,8 +72,8 @@ The following parts are needed to setup a CAN board:
 * Wemos D1 [Amazon Germany](https://amzn.to/3fdFrOu) [AliExpress](https://s.click.aliexpress.com/e/_AMlgFl)
 * Keyestudio CAN_BUS Shield [AliExpress](https://s.click.aliexpress.com/e/_AWnohh)
 
-The Wemos D1 uses 3.3V as logic power, but the CAN-BUS Shield is powered by 5V, which could damage the input pins of the ESP8266.
-The Pin +5V of the CAN-BUS Shield must be removed and the 3.3V and 5V pins must be shortcut in the shield.
+CAUTION: Wemos D1 R1 needs 3.3V logic level, if not ESP8266 will be damaged.
+Pin 18 of MCP2515 must be unsoldered and connected to 3.3V
 
 The following pins from the Wemos D1 R1 are connected to the CAN Bus shield:
 
@@ -79,19 +82,24 @@ The following pins from the Wemos D1 R1 are connected to the CAN Bus shield:
 * 11 -> D7 MOSI
 * 10 -> D10 CS
 * 2 INT -> D2
-* +5V -> 3.3V
+* 3.3V -> Pin18 MCP2515
+* 5V -> 5V
 * GND -> GND
 * RST -> RST
 
 ## Arduino SW
 
-The following Arduino SW is needed [DLTCan.ino](https://github.com/alexmucde/DLTCan/blob/main/arduino/DLTCan/DLTCan.ino)
+The following Arduino SW is needed 
+
+[WemosD1MiniCAN.ino](https://github.com/alexmucde/DLTCan/blob/main/arduino/WemosD1MiniCAN/WemosD1MiniCAN.ino)
+[WemosD1R1CANDiymore.ino](https://github.com/alexmucde/DLTCan/blob/main/arduino/WemosD1R1CANDiymore/WemosD1R1CANDiymore.ino)
+[WemosD1R1CANKeyestudio.ino](https://github.com/alexmucde/DLTCan/blob/main/arduino/WemosD1R1CANKeyestudio/WemosD1R1CANKeyestudio.ino)
 
 The Arduino SW is based on the Wemos Library:
 
 [Wemos Library](https://github.com/alexmucde/WemosLibrary)
 
-Clone or copy the Wemos Library into the Arduino Libraries folder before compiling the [DLTCan.ino](https://github.com/alexmucde/DLTCan/blob/main/arduino/DLTCan/DLTCan.ino) sketch.
+Clone or copy the Wemos Library into the Arduino Libraries folder before compiling the sketch.
 
 Compile, upload and run the SW with the [Arduino IDE](https://www.arduino.cc/en/software).
 
@@ -173,6 +181,11 @@ Github Sponsors:
 [:heart: Sponsor](https://github.com/sponsors/alexmucde)
 
 ## Changes
+
+v0.1.0:
+
+* Remove automatic port name detection
+* Support additional CAN Board
 
 v0.0.2:
 

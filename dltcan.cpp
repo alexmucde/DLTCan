@@ -49,8 +49,10 @@ void DLTCan::checkPortName()
                availablePorts[num].productIdentifier()==interfaceProductIdentifier &&
                availablePorts[num].vendorIdentifier()==interfaceVendorIdentifier)
             {
-                qDebug() << "Port name has changed from" << interface << "to" << availablePorts[num].portName();
-                interface = availablePorts[num].portName();
+                // The following is not working, if several interfaces have the same name
+                // Must be improved in future, e.g. with Serial Id of each device
+                // qDebug() << "Port name has changed from" << interface << "to" << availablePorts[num].portName();
+                // interface = availablePorts[num].portName();
             }
         }
     }
@@ -65,7 +67,7 @@ void DLTCan::start()
     }
 
     // start communication
-    checkPortName();
+    // checkPortName();
 
     // set serial port parameters
     serialPort.setBaudRate(QSerialPort::Baud115200);
@@ -262,7 +264,7 @@ void DLTCan::timeout()
         }
 
         // check if port name has changed
-        checkPortName();
+        // checkPortName();
 
         serialData.clear();
 

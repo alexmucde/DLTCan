@@ -1,29 +1,9 @@
 /*
 
-Wemos D1 mini -> Custom CAN Bus Shield:
-
-3V3 -> VCC
-D5 -> SCK
-D6 -> MISO
-D7 -> MOSI
-D8 -> CS
-GND -> GND
-D2 -> INT
-
-Keyestudio CAN Bus Shield -> Wemos D1 R1:
-
-13 SCK
-12 MISO
-11 MOSI
-10 CS
-
-8 INT -> D8
-
-+5V -> 3.3V
-GND -> GND
-RST -> RST
-
 Diymore CAN Bus Shield -> Wemos D1 R1:
+
+CAUTION: Wemos D1 R1 needs 3.3V logic level, if not ESP8266 will be damaged.
+Pin 18 of MCP2515 must be unsoldered and connected to 3.3V
 
 13 SCK
 12 MISO
@@ -32,7 +12,8 @@ Diymore CAN Bus Shield -> Wemos D1 R1:
 
 2 INT -> D2
 
-+5V -> 3.3V
+3.3V -> Pin18 MCP2515
++5V -> 5V
 GND -> GND
 RST -> RST
 
@@ -42,9 +23,7 @@ RST -> RST
 #include <WTimer.h>
 #include <WSerial.h>
 
-WCan can(CAN_500KBPS,MCP_8MHZ,D8,D2); // Wemos D1 mini + Custom CAN Bus Shield
-//WCan can(CAN_500KBPS,MCP_16MHZ,D10,D8); // Wemos D1 R1 + Keyestudio CAN Bus Shield
-//WCan can(CAN_500KBPS,MCP_16MHZ,D10,D2); // Wemos D1 R1 + Diymore CAN Bus Shield
+WCan can(CAN_500KBPS,MCP_16MHZ,D10,D2); // Wemos D1 R1 + Diymore CAN Bus Shield
 WTimer timer;
 WSerial serial(WSerial::Binary);
 
