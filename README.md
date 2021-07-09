@@ -140,10 +140,10 @@ The following commands are used
 
 ## DLT Injection commands
 
-* CAN <hex id> <hex message>
-* CANCYC1 <decimal time ms> <hex id> <hex message>
+* CAN \<hex id\> \<hex message\>
+* CANCYC1 \<decimal time ms\> \<hex id\> \<hex message\>
 * CANCYC1 off
-* CANCYC2 <decimal time ms> <hex id> <hex message>
+* CANCYC2 \<decimal time ms\> \<hex id\> \<hex message\>
 * CANCYC2 off
 
 ## Installation
