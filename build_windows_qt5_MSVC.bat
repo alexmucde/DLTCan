@@ -34,11 +34,11 @@ echo *** Setting up environment ***
 
 if "%QTDIR%"=="" (
     if "%ARCHITECTURE%"=="x86_amd64" (
-        set QTDIR=C:\Qt\Qt5.12.10\5.12.10\msvc2015_64
-    ) else (set QTDIR=C:\Qt\Qt5.12.10\5.12.10\msvc2015)
+        set QTDIR=C:\Qt\5.15.2\msvc2019_64
+    ) else (set QTDIR=C:\Qt\5.15.2\msvc2019)
 )
 
-if "%MSVC_DIR%"=="" set MSVC_DIR=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
+if "%MSVC_DIR%"=="" set MSVC_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build
 
 
 set PATH=%QTDIR%\bin;%MSVC_DIR%;%MSVC_DIR%\bin;%PATH%
