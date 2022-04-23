@@ -74,12 +74,16 @@ void DLTCan::start()
     serialPort.setDataBits(QSerialPort::Data8);
     serialPort.setParity(QSerialPort::NoParity);
     serialPort.setStopBits(QSerialPort::OneStop);
+    serialPort.setFlowControl(QSerialPort::NoFlowControl);
     serialPort.setPortName(interface);
 
     // open serial port
     if(serialPort.open(QIODevice::ReadWrite)==true)
     {
         // open with success
+
+        // prevent flash mode of Wemos D1 mini
+        serialPort.setDataTerminalReady(false);
 
         // connect slot to receive data from serial port
         connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -214,7 +218,7 @@ void DLTCan::readyRead()
                    unsigned short id = ((unsigned short)rawData.at(2)<<8)|((unsigned short)rawData.at(3));
                    QByteArray data = rawData.mid(4,length);
                    qDebug() << "DLTCan: Standard CAN message " << id << length << data.toHex();
-                   message(id,data);
+                   message(id,"Rx",data);
                    rawData.clear();
                }
            }
@@ -232,7 +236,7 @@ void DLTCan::readyRead()
                    unsigned int id = ((unsigned int)rawData.at(2)<<8)|((unsigned int)rawData.at(3)<<8)|((unsigned int)rawData.at(4)<<8)|((unsigned int)rawData.at(5));
                    QByteArray data = rawData.mid(6,length);
                    qDebug() << "DLTCan: Extended CAN message " << id << length << data.toHex();
-                   message(id,data);
+                   message(id,"Rx",data);
                    rawData.clear();
                }
            }
@@ -272,6 +276,9 @@ void DLTCan::timeout()
         if(serialPort.open(QIODevice::ReadWrite)==true)
         {
             // retry was succesful
+
+            // prevent flash mode of Wemos D1 mini
+            serialPort.setDataTerminalReady(false);
 
             // connect slot to receive data from serial port
             connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -464,7 +471,7 @@ void DLTCan::sendMessage(unsigned short id,unsigned char *data,int length)
 
     qDebug() << "DLTCan: Send CAN message " << id << length << QByteArray((char*)msg,pos).toHex();
 
-    message(id,QByteArray((char*)data,length));
+    message(id,"Tx",QByteArray((char*)data,length));
 
 }
 
@@ -523,7 +530,7 @@ void DLTCan::timeoutCyclicMessage1()
 
     qDebug() << "DLTCan: Send CAN message " << cyclicMessageId1 << cyclicMessageData1.length() << QByteArray((char*)msg,cyclicMessageData1.length()+5).toHex();
 
-    message(cyclicMessageId1,QByteArray((char*)cyclicMessageData1.constData(),cyclicMessageData1.length()));
+    message(cyclicMessageId1,"Tx",QByteArray((char*)cyclicMessageData1.constData(),cyclicMessageData1.length()));
 }
 
 void DLTCan::timeoutCyclicMessage2()
@@ -545,7 +552,7 @@ void DLTCan::timeoutCyclicMessage2()
 
     qDebug() << "DLTCan: Send CAN message " << cyclicMessageId2 << cyclicMessageData2.length() << QByteArray((char*)msg,cyclicMessageData2.length()+5).toHex();
 
-    message(cyclicMessageId2,QByteArray((char*)cyclicMessageData2.constData(),cyclicMessageData2.length()));
+    message(cyclicMessageId2,"Tx",QByteArray((char*)cyclicMessageData2.constData(),cyclicMessageData2.length()));
 }
 
 bool DLTCan::getCyclicMessageActive2() const

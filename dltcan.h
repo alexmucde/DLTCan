@@ -87,7 +87,7 @@ public:
 signals:
 
     void status(QString text);
-    void message(unsigned int id,QByteArray data);
+    void message(unsigned int id,QString direction,QByteArray data);
 
 private slots:
 

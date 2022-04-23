@@ -55,7 +55,7 @@ private slots:
     void on_pushButtonStart_clicked();
     void on_pushButtonStop_clicked();
 
-    void message(unsigned int id,QByteArray data);
+    void message(unsigned int id,QString direction,QByteArray data);
 
     void on_pushButtonSend_clicked();
 

@@ -31,6 +31,7 @@ Dialog::Dialog(bool autostart,QString configuration,QWidget *parent)
 
     // clear settings
     on_pushButtonDefaultSettings_clicked();
+    dltMiniServer.setContextId("CAN");
 
     // set window title with version information
     setWindowTitle(QString("DLTCan %1").arg(DLT_CAN_VERSION));
@@ -131,7 +132,7 @@ void Dialog::on_pushButtonStart_clicked()
     ui->pushButtonLoadSettings->setDisabled(true);
     ui->pushButtonSettings->setDisabled(true);
 
-    connect(&dltCan, SIGNAL(message(unsigned int,QByteArray)), this, SLOT(message(unsigned int,QByteArray)));
+    connect(&dltCan, SIGNAL(message(unsigned int,QString,QByteArray)), this, SLOT(message(unsigned int,QString,QByteArray)));
 
     msgCounter = 0;
     ui->lineEditMsgCount->setText(QString("%1").arg(msgCounter));
@@ -141,7 +142,7 @@ void Dialog::on_pushButtonStop_clicked()
 {
     // stop communication
 
-    disconnect(&dltCan, SIGNAL(message(unsigned int,QByteArray)), this, SLOT(message(unsigned int,QByteArray)));
+    disconnect(&dltCan, SIGNAL(message(unsigned int,QString,QByteArray)), this, SLOT(message(unsigned int,QString,QByteArray)));
 
     // stop Relais and DLT communication
     dltCan.stop();
@@ -174,6 +175,8 @@ void Dialog::statusCan(QString text)
         palette.setColor(QPalette::Base,Qt::green);
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
+        if(text=="init ok")
+            ;//dltMiniServer.sendValue(text);
     }
     else if(text == "reconnect" || text=="send error" || text == "init error")
     {
@@ -181,6 +184,8 @@ void Dialog::statusCan(QString text)
         palette.setColor(QPalette::Base,Qt::yellow);
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
+        if(text=="send error" || text=="init error")
+            ;//dltMiniServer.sendValue(text);
     }
     else if(text == "error")
     {
@@ -189,6 +194,8 @@ void Dialog::statusCan(QString text)
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
     }
+    if(text!="send ok" && text!="started")
+        dltMiniServer.sendValue(text);
 }
 
 void Dialog::statusDlt(QString text)
@@ -333,11 +340,13 @@ void Dialog::on_pushButtonInfo_clicked()
     msgBox.exec();
 }
 
-void  Dialog::message(unsigned int id,QByteArray data)
+void  Dialog::message(unsigned int id,QString direction,QByteArray data)
 {
-    dltMiniServer.sendValue3("CAN",QString("%1").arg(id, 8, 16, QLatin1Char( '0' )),data.toHex());
+    dltMiniServer.sendValue3(direction,QString("%1").arg(id, 3, 16, QLatin1Char( '0' )),data.toHex());
 
-    msgCounter++;
+    if(direction=="Rx")
+        msgCounter++;
+
     ui->lineEditMsgCount->setText(QString("%1").arg(msgCounter));
 }
 
