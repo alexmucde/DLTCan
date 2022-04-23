@@ -175,8 +175,6 @@ void Dialog::statusCan(QString text)
         palette.setColor(QPalette::Base,Qt::green);
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
-        if(text=="init ok")
-            ;//dltMiniServer.sendValue(text);
     }
     else if(text == "reconnect" || text=="send error" || text == "init error")
     {
@@ -184,8 +182,6 @@ void Dialog::statusCan(QString text)
         palette.setColor(QPalette::Base,Qt::yellow);
         ui->lineEditStatusCan->setPalette(palette);
         ui->lineEditStatusCan->setText(text);
-        if(text=="send error" || text=="init error")
-            ;//dltMiniServer.sendValue(text);
     }
     else if(text == "error")
     {

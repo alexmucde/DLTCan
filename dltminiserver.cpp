@@ -161,7 +161,7 @@ void DLTMiniServer::readyRead()
 
                     unsigned char htyp = (unsigned char)(readData[0]);
 
-                    unsigned short standardHeaderLength = 4;
+                    int standardHeaderLength = 4;
                     if(htyp&0x04) standardHeaderLength+=4; // with ecu id
                     if(htyp&0x08) standardHeaderLength+=4; // with session id
                     if(htyp&0x10) standardHeaderLength+=4; // with timestamp
@@ -187,7 +187,7 @@ void DLTMiniServer::readyRead()
 
                             if(serviceId==4096 && readData.size()>=standardHeaderLength+10+4+4)
                             {
-                                unsigned int lengthData = (unsigned int)(readData[standardHeaderLength+14]) |
+                                int lengthData = (unsigned int)(readData[standardHeaderLength+14]) |
                                                             (unsigned int)(readData[standardHeaderLength+15]) << 8 |
                                                             (unsigned int)(readData[standardHeaderLength+15]) << 16 |
                                                             (unsigned int)(readData[standardHeaderLength+15]) << 24;
