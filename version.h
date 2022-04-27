@@ -15,6 +15,6 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define DLT_CAN_VERSION "v0.1.0"
+#define DLT_CAN_VERSION "v0.1.1"
 
 #endif // VERSION_H
